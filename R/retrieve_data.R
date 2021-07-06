@@ -101,13 +101,15 @@ getData <- function(hashtag, n, filename, appname, ...) {
 }
 
 clean_data <- function(dataset) {
-  dataset %>%
+  unprepend_ids(rtweet::flatten(dataset)) %>%
     # TODO: Improve this.
     dplyr::mutate(dplyr::across(
       dplyr::everything(),
       ~ dplyr::na_if(., stringr::str_match_all(., "[NA NA]+"))
     )) %>%
-    dplyr::distinct(created_at, user_id, text, .keep_all = TRUE) %>%
+    dplyr::group_by(status_id) %>%
+    dplyr::filter(dplyr::row_number(dplyr::desc(favorite_count)) == 1) %>%
+    dplyr::ungroup() %>%
     janitor::remove_empty(which = "cols")
 
 }

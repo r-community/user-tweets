@@ -8,4 +8,3 @@ getData("#user2021",
         "rtweet-exploration",
         include_rts = FALSE,
         retryonratelimit = TRUE)
-
