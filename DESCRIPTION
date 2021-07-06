@@ -8,7 +8,7 @@ Authors@R:
            email = "jvfecav@gmail.com",
            comment = c(ORCID = "0000-0001-7513-7376"))
 Description: An interactive exploration of tweets using the useRconf hashtags.
-License: BSD_3_clause + file LICENSE
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
