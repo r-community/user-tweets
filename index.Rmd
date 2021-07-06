@@ -1,0 +1,354 @@
+---
+title: "#useRconf Twitter Explorer"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+    source_code: embed
+    theme:
+      version: 4
+      bootswatch: yeti
+    css: styles/main.css
+---
+
+```{r load_proj, include=FALSE}
+devtools::load_all()
+```
+
+```{r load_packages, include=FALSE, cache=TRUE}
+library(flexdashboard)
+library(rtweet)
+library(vroom)
+library(dplyr)
+library(stringr)
+library(tidytext)
+library(lubridate)
+library(echarts4r)
+library(DT)
+
+rstats_tweets <- readData("data/useR_tweets.csv.gz")
+```
+
+
+```{r time_data, include=FALSE, cache=TRUE}
+count_timeseries <- rstats_tweets %>%
+  ts_data(by = "days")
+
+tweets_today <- rstats_tweets %>%
+  filter(date(created_at) == today())
+```
+
+
+```{r numbers, include=FALSE, cache=TRUE}
+number_of_unique_tweets <- get_unique_value(rstats_tweets, text)
+
+number_of_unique_tweets_today <-
+  get_unique_value(tweets_today, text)
+
+number_of_tweeters_today <- get_unique_value(tweets_today, user_id)
+
+number_of_likes <- rstats_tweets %>%
+  pull(favorite_count) %>%
+  sum()
+```
+
+
+```{r rankings_data, include=FALSE, cache=TRUE}
+top_tweeters <- rstats_tweets %>%
+  group_by(user_id, screen_name, profile_url, profile_image_url) %>%
+  summarize(engagement = (sum(retweet_count) * 2 + sum(favorite_count)) / n()) %>%
+  ungroup() %>%
+  slice_max(engagement, n = 10, with_ties = FALSE)
+
+top_tweeters_format <- top_tweeters %>% 
+  mutate(
+    profile_url = stringr::str_glue("https://twitter.com/{screen_name}"),
+    screen_name = stringr::str_glue('<a href="{profile_url}" target="_blank">@{screen_name}</a>'),
+    engagement = formattable::color_bar("#a3c1e0", formattable::proportion)(engagement)
+  ) %>%
+  select(screen_name, engagement)
+
+top_hashtags <- rstats_tweets %>%
+  tidyr::separate_rows(hashtags, sep = " ") %>%
+  count(hashtags) %>%
+  filter(!(hashtags %in% c("rstats", "RStats"))) %>%
+  slice_max(n, n = 10, with_ties = FALSE) %>%
+  mutate(
+    number = formattable::color_bar("plum", formattable::proportion)(n),
+    hashtag = stringr::str_glue(
+      '<a href="https://twitter.com/hashtag/{hashtags}" target="_blank">#{hashtags}</a>'
+    ),
+  ) %>%
+  select(hashtag, number)
+
+word_banlist <-  c("t.co", "https", "rstats")
+top_words <- rstats_tweets %>%
+  select(text) %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words) %>%
+  filter(!(word %in% word_banlist)) %>%
+  filter(nchar(word) >= 4) %>% 
+  count(word, sort = TRUE) %>%
+  slice_max(n, n = 10, with_ties = FALSE) %>%
+  select(word, n)
+
+top_co_hashtags <- rstats_tweets %>% 
+  unnest_tokens(bigram, hashtags, token = "ngrams", n = 2) %>% 
+  tidyr::separate(bigram, c("word1", "word2"), sep = " ") %>% 
+  filter(!word1 %in% c(stop_words$word, word_banlist)) %>% 
+  filter(!word2 %in% c(stop_words$word, word_banlist)) %>% 
+  count(word1, word2, sort = TRUE) %>% 
+  filter(!is.na(word1) & !is.na(word2)) %>% 
+  slice_max(n, n = 100, with_ties = FALSE)
+
+top_locations <- rstats_tweets %>%
+  filter(!is.na(location) & location != "#rstats") %>%
+  distinct(user_id, .keep_all = TRUE) %>%
+  mutate(location = str_replace_all(location, "London$", "London, England")) %>% 
+  count(location) %>%
+  slice_max(n, n = 10, with_ties = FALSE)
+```
+
+
+Home {data-icon="ion-home"}
+====
+
+Row
+-----------------------------------------------------------------------
+
+### Tweets Today
+
+```{r tweets_today}
+valueBox(number_of_unique_tweets_today, icon = "fa-comment-alt", color = "plum")
+```
+
+### Tweeters Today
+
+```{r tweeters_today}
+valueBox(number_of_tweeters_today, icon = "fa-user", color = "peachpuff")
+```
+
+### #rstats Likes
+
+```{r likes}
+valueBox(number_of_likes, icon = "fa-heart", color = "palevioletred")
+```
+
+### #rstats Tweets
+
+```{r unique_tweets}
+valueBox(number_of_unique_tweets, icon = "fa-comments", color = "mediumorchid")
+```
+
+Row {.tabset .tabset-fade}
+-----------------------------------------------------------------------
+
+### Tweet volume
+
+```{r tweet_volume}
+plot_tweet_volume(count_timeseries)
+```
+
+### Tweets by Hour of Day
+
+```{r tweets_by_hour}
+plot_tweet_by_hour(rstats_tweets)
+```
+
+Row
+-----------------------------------------------------------------------
+
+### 💗 Most Liked Tweet Today {.tweet-box}
+
+```{r most_liked}
+most_liked_url <- tweets_today %>%
+  slice_max(favorite_count, with_ties = FALSE)
+
+get_tweet_embed(most_liked_url$screen_name, most_liked_url$status_id)
+```
+
+### ✨ Most Retweeted Tweet Today {.tweet-box}
+
+```{r most_rt}
+most_retweeted <- tweets_today %>%
+  slice_max(retweet_count, with_ties = FALSE)
+
+get_tweet_embed(most_retweeted$screen_name, most_retweeted$status_id)
+```
+
+### 🎉 Most Recent {.tweet-box}
+
+```{r most_recent}
+most_recent <- tweets_today %>%
+  slice_max(created_at, with_ties=FALSE)
+
+get_tweet_embed(most_recent$screen_name, most_recent$status_id)
+```
+
+Rankings {data-icon="ion-arrow-graph-up-right"}
+=========
+
+Row
+-----------------------------------------------------------------------
+
+### Top Tweeters
+
+```{r top_tweeters}
+top_tweeters_format %>%
+  knitr::kable(
+    format = "html",
+    escape = FALSE,
+    align = "cll",
+    col.names = c("User", "Engagement/Tweet "),
+    table.attr = 'class = "table"'
+  )
+```
+
+Where Engagement is `RT * 2 + Favourite`
+
+### Network of top tweeters
+
+Relationships in the graph describe replies and quote retweets from the top tweeters
+that also have the hashtag.
+
+```{r top_tweeters_net}
+edgelist <-
+  network_data(rstats_tweets %>% unflatten(), "reply,quote")
+nodelist <- attr(edgelist, "idsn") %>%
+  bind_cols()
+
+top_edges <- edgelist %>%
+  filter((from %in% top_tweeters$user_id) |
+           (to %in% top_tweeters$user_id))
+
+top_nodes <- nodelist %>%
+  filter((id %in% top_edges$from) | (id %in% top_edges$to)) %>%
+  mutate(is_top = ifelse((id %in% top_tweeters$user_id), "yes", "no"),
+         size = 10)
+
+e_charts() %>%
+  e_graph() %>%
+  e_graph_nodes(top_nodes, id, sn, size, category = is_top, legend = FALSE) %>%
+  e_graph_edges(top_edges, from, to) %>%
+  e_tooltip()
+```
+
+Row
+-----------------------------------------------------------------------
+
+### Top Words
+
+```{r top_words}
+top_words %>%
+  e_charts(word, name = "Word") %>%
+  e_bar(n, legend = FALSE, name = "Number") %>% 
+  e_x_axis(
+    axisLabel = list(
+      interval = 0L,
+      rotate = 30
+    )
+  ) %>%
+  e_tooltip(trigger = "axis") %>% 
+  e_toolbox_feature("saveAsImage") %>%
+  e_axis_labels(y = "Number of occurrences")
+```
+
+### Top Locations
+
+```{r top_locations}
+top_locations %>% 
+  mutate(location = str_wrap(location, 9)) %>% 
+  e_charts(location, name = "Location") %>% 
+  e_bar(n, legend = FALSE, name = "Number") %>% 
+  e_x_axis(
+    axisLabel = list(
+      interval = 0L,
+      rotate = 30
+    )
+  ) %>%
+  e_tooltip(trigger = "axis") %>% 
+  e_toolbox_feature("saveAsImage") %>%
+  e_axis_labels(y = "Number of users from location")
+```
+
+
+Row
+-----------------------------------------------------------------------
+
+### Top Hashtags
+
+```{r top_hashtags}
+top_hashtags %>%
+  knitr::kable(
+    format = "html",
+    escape = FALSE,
+    align = "cll",
+    col.names = c("Hashtag", "Count"),
+    table.attr = 'class = "table"'
+  )
+```
+
+Excluding `#rstats` and similar variations
+
+### Common co-occuring hashtags
+
+Hashtags that occur together, grouped by community detection
+
+```{r co_hashtags}
+top_co_hash_nodes <- tibble(
+  nodes = c(top_co_hashtags$word1, top_co_hashtags$word2)
+) %>% 
+  distinct()
+
+e_chart() %>% 
+  e_graph() %>% 
+  e_graph_nodes(top_co_hash_nodes, nodes, nodes, nodes) %>% 
+  e_graph_edges(top_co_hashtags, word1, word2) %>% 
+  e_modularity()
+```
+
+
+Data {data-icon="ion-stats-bars"}
+==============
+
+### Tweets in the current week {.datatable-container}
+
+```{r datatable}
+rstats_tweets %>%
+  select(
+    status_url,
+    created_at,
+    screen_name,
+    text,
+    retweet_count,
+    favorite_count,
+    mentions_screen_name
+  ) %>%
+  mutate(
+    status_url = stringr::str_glue("<a href=\"{status_url}\" target=\"_blank\">On Twitter</a>")
+  ) %>%
+  datatable(
+    .,
+    extensions = "Buttons",
+    rownames = FALSE,
+    escape = FALSE,
+    colnames = c("Timestamp", "User", "Tweet", "RT", "Fav", "Mentioned"),
+    filter = 'top',
+    options = list(
+      columnDefs = list(list(
+        targets = 0, searchable = FALSE
+      )),
+      lengthMenu = c(5, 10, 25, 50, 100),
+      pageLength = 10,
+      scrollY = 600,
+      scroller = TRUE,
+      dom = '<"d-flex justify-content-between"lBf>rtip',
+      buttons = list('copy', list(
+        extend = 'collection',
+        buttons = c('csv', 'excel'),
+        text = 'Download'
+      ))
+    )
+  )
+```
+
