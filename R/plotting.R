@@ -10,7 +10,7 @@
 #' @examples
 plot_tweet_volume <- function(data) {
   this_month <- lubridate::floor_date(today(), "month")
-  
+
   data %>%
     echarts4r::e_charts(time) %>%
     echarts4r::e_line(n,
@@ -78,7 +78,7 @@ plot_tweet_volume <- function(data) {
 #'
 #' @examples
 plot_tweet_by_hour <- function(tweet_dataset) {
-  tweet_dataset %>% 
+  tweet_dataset %>%
     dplyr::group_by(hour = hour(created_at)) %>%
     dplyr::summarise(count = n()) %>%
     dplyr::ungroup() %>%
@@ -96,4 +96,22 @@ plot_tweet_by_hour <- function(tweet_dataset) {
       let num = `${params[0].value[1]} tweets`
       return(`${title}</br>${num}`);
     }"))
+}
+
+build_bar_col <- function(value, max_col, color) {
+  width <-
+    paste0(value * 100 / max(max_col), "%")
+
+  value <- format(value, big.mark = ",")
+  value <- format(value, width = 9, justify = "right")
+
+  bar <- htmltools::div(
+    class = "bar-chart",
+    style = list(marginRight = "6px"),
+    htmltools::div(
+      class = "bar",
+      style = list(width = width, backgroundColor = color)
+    )
+  )
+  htmltools::div(class = "bar-cell", htmltools::span(class = "number", value), bar)
 }
