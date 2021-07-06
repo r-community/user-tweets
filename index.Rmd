@@ -1,5 +1,5 @@
 ---
-title: "#useRconf Twitter Explorer"
+title: "#useR2021 Twitter Explorer"
 output: 
   flexdashboard::flex_dashboard:
     orientation: rows
