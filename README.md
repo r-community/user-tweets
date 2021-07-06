@@ -5,7 +5,7 @@
 
 This is a self-updating dashboard that shows the latest tweets from the #useR2021 twitter hashtag. It updates both the data and the dashboard daily using GH Actions, which can also be triggered manually.
 
-[See it live here](https://jvfe.github.io/userconfDash/)
+[See it live here](https://r-community.github.io/user-tweets/)
 
 ## Repository structure
 

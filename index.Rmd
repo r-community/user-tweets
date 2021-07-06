@@ -72,7 +72,7 @@ top_hashtags <- userconf_tweets %>%
   tidyr::separate_rows(hashtags, sep = " ") %>%
   count(hashtags = str_to_lower(hashtags)) %>%
   filter(!(hashtags %in% c("user2021"))) %>%
-  slice_max(n, n = 10, with_ties = FALSE) %>%
+  slice_max(n, n = 20, with_ties = FALSE) %>%
   mutate(
     hashtag = stringr::str_glue(
       '<a href="https://twitter.com/hashtag/{hashtags}" target="_blank" class="tbl-link">#{hashtags}</a>'
@@ -88,7 +88,7 @@ top_words <- userconf_tweets %>%
   filter(!(word %in% word_banlist)) %>%
   filter(nchar(word) > 4) %>% 
   count(word, sort = TRUE) %>%
-  slice_max(n, n = 20, with_ties = FALSE) %>%
+  slice_max(n, n = 500) %>% 
   select(word, n)
 
 top_co_hashtags <- userconf_tweets %>% 
@@ -110,6 +110,15 @@ top_locations <- userconf_tweets %>%
 top_tweets <- userconf_tweets %>%
   mutate(popularity = favorite_count + (retweet_count * 2)) %>% 
   slice_max(popularity, n = 10, with_ties = FALSE)
+
+emoji_regex <- "[\\uD83C-\\uDBFF\\uDC00-\\uDFFF\u2600-\u27ff]+"
+top_emojis <- userconf_tweets %>% 
+  unnest_tweets(text, text) %>% 
+  filter(str_detect(text, emoji_regex)) %>% 
+  mutate(text = str_remove_all(text, "\\w")) %>% 
+  unnest_characters(text, text) %>% 
+  count(text, sort = TRUE) %>% 
+  slice_max(n, n = 20, with_ties = FALSE)
 ```
 
 ```{r timeline_data, include=FALSE, cache=TRUE}
@@ -346,22 +355,14 @@ top_tweeters_format %>%
   )
 ```
 
-### Top Locations
+### Word Cloud
 
-```{r top_locations}
-top_locations %>% 
-  mutate(location = str_wrap(location, 9)) %>% 
-  e_charts(location, name = "Location") %>% 
-  e_bar(n, legend = FALSE, name = "Number") %>% 
-  e_x_axis(
-    axisLabel = list(
-      interval = 0L,
-      rotate = 40
-    )
-  ) %>%
-  e_tooltip(trigger = "axis") %>% 
-  e_toolbox_feature("saveAsImage") %>%
-  e_axis_labels(y = "Number of users from location")
+```{r}
+top_words %>% 
+  filter(nchar(word) >= 4) %>% 
+  e_color_range(n, color) %>% 
+  e_charts() %>% 
+  e_cloud(word, n, color, shape = "circle")
 ```
 
 Row
@@ -371,6 +372,7 @@ Row
 
 ```{r top_words}
 top_words %>%
+  slice_max(n, n = 25, with_ties = FALSE) %>%
   e_charts(word, name = "Word") %>%
   e_bar(n, legend = FALSE, name = "Number") %>% 
   e_x_axis(
@@ -384,7 +386,7 @@ top_words %>%
   e_axis_labels(y = "Number of occurrences")
 ```
 
-Row
+Row {data-height=810}
 -----------------------------------------------------------------------
 
 ### Top Hashtags
@@ -395,6 +397,8 @@ top_hashtags %>%
     .,
     highlight = TRUE,
     defaultSorted = "n",
+    pagination = FALSE,
+    defaultPageSize = 25,
     defaultColDef = colDef(headerClass = "header", align = "left", minWidth = 50),
     columns = list(
       hashtag = colDef(
@@ -413,6 +417,37 @@ top_hashtags %>%
   )
 ```
 
+### Top Emojis
+
+```{r}
+top_emojis %>%
+  reactable(
+    .,
+    highlight = TRUE,
+    defaultSorted = "n",
+    pagination = FALSE,
+    defaultPageSize = 25,
+    defaultColDef = colDef(headerClass = "header", align = "left", minWidth = 50),
+    columns = list(
+      text = colDef(
+        name = "Emoji",
+        width = 55
+      ),
+      n = colDef(
+        name = "Count",
+        defaultSortOrder = "desc",
+        cell = function(value) {
+            build_bar_col(value, top_emojis$n, "#99c794")
+          }
+      )
+    )
+  )
+```
+
+
+Row
+-----------------------------------------------------------------------
+
 ### Common co-occuring hashtags
 
 Hashtags that occur together, grouped by community detection
@@ -428,6 +463,25 @@ e_chart() %>%
   e_graph_nodes(top_co_hash_nodes, nodes, nodes, nodes) %>% 
   e_graph_edges(top_co_hashtags, word1, word2) %>% 
   e_modularity()
+```
+
+
+### Top Locations
+
+```{r top_locations}
+top_locations %>% 
+  mutate(location = str_wrap(location, 9)) %>% 
+  e_charts(location, name = "Location") %>% 
+  e_bar(n, legend = FALSE, name = "Number") %>% 
+  e_x_axis(
+    axisLabel = list(
+      interval = 0L,
+      rotate = 40
+    )
+  ) %>%
+  e_tooltip(trigger = "axis") %>% 
+  e_toolbox_feature("saveAsImage") %>%
+  e_axis_labels(y = "Number of users from location")
 ```
 
 Tweet Wall {data-icon="ion-grid"}
