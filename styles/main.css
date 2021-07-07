@@ -133,10 +133,10 @@ blockquote.twitter-tweet {
 
 .footer-sponsors > a > .img-fluid {
   width: 5em;
-  height: 2em;
+  height: 3em;
 }
 
-#cynkra-logo {
+.cover-img {
   object-fit: cover;
   object-position: center;
 }

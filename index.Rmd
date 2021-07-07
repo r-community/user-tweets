@@ -111,7 +111,7 @@ top_locations <- userconf_tweets %>%
 
 top_tweets <- userconf_tweets %>%
   mutate(popularity = favorite_count + (retweet_count * 2)) %>% 
-  slice_max(popularity, n = 10, with_ties = FALSE)
+  slice_max(popularity, n = 20, with_ties = FALSE)
 
 emoji_regex <- "[\\uD83C-\\uDBFF\\uDC00-\\uDFFF\u2600-\u27ff]+"
 top_emojis <- userconf_tweets %>% 
@@ -305,6 +305,17 @@ most_recent <- tweets_today %>%
 get_tweet_embed(most_recent$screen_name, most_recent$status_id)
 ```
 
+Row
+-------------------------------------
+
+### 20 Most Popular Tweets {.tweet-wall}
+
+```{r}
+top_tweets_html <- purrr::pmap_chr(list(top_tweets$screen_name, top_tweets$status_id), get_tweet_embed)
+
+htmltools::HTML(str_glue("{top_tweets_html}"))
+```
+
 Rankings {data-icon="ion-arrow-graph-up-right"}
 =========
 
@@ -484,20 +495,6 @@ top_locations %>%
   e_tooltip(trigger = "axis") %>% 
   e_toolbox_feature("saveAsImage") %>%
   e_axis_labels(y = "Number of users from location")
-```
-
-Tweet Wall {data-icon="ion-grid"}
-==============
-
-Row
--------------------------------------
-
-### 10 Most Popular Tweets {.tweet-wall}
-
-```{r}
-top_tweets_html <- purrr::pmap_chr(list(top_tweets$screen_name, top_tweets$status_id), get_tweet_embed)
-
-htmltools::HTML(str_glue("{top_tweets_html}"))
 ```
 
 Data {data-icon="ion-stats-bars"}
