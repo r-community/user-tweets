@@ -131,6 +131,10 @@ blockquote.twitter-tweet {
 }
 /* Styles for the tweet wall end */
 
+.value-box {
+  color: white;
+}
+
 .footer-sponsors > a > .img-fluid {
   width: 5em;
   height: 3em;
@@ -144,3 +148,4 @@ blockquote.twitter-tweet {
 .page-footer {
   margin-left: -10px;
 }
+
