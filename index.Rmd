@@ -164,25 +164,25 @@ Row
 ### Tweets Today
 
 ```{r tweets_today}
-valueBox(number_of_unique_tweets_today, icon = "fa-comment-alt", color = "plum")
+valueBox(number_of_unique_tweets_today, icon = "fa-comment-alt", color = "rgba(39, 128, 227, 0.7)")
 ```
 
 ### Tweeters Today
 
 ```{r tweeters_today}
-valueBox(number_of_tweeters_today, icon = "fa-user", color = "peachpuff")
+valueBox(number_of_tweeters_today, icon = "fa-user", color = "rgba(153, 84, 187, 0.7)")
 ```
 
-### #useR2021 Likes
+### #useR2021 Likes </br> <small> (Jun 14 - Today) </small>
 
 ```{r likes}
-valueBox(number_of_likes, icon = "fa-heart", color = "palevioletred")
+valueBox(number_of_likes, icon = "fa-heart", color = "rgba(39, 128, 227, 0.7)")
 ```
 
-### #useR2021 Tweets
+### #useR2021 Tweets </br> <small> (Jun 14 - Today) </small>
 
 ```{r unique_tweets}
-valueBox(number_of_unique_tweets, icon = "fa-comments", color = "mediumorchid")
+valueBox(number_of_unique_tweets, icon = "fa-comments", color = "rgba(153, 84, 187, 0.7)")
 ```
 
 Row {.tabset .tabset-fade}
