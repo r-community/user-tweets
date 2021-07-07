@@ -83,7 +83,7 @@ plot_tweet_by_hour <- function(tweet_dataset) {
     dplyr::summarise(count = n()) %>%
     dplyr::ungroup() %>%
     echarts4r::e_charts(hour) %>%
-    echarts4r::e_step(count, name = "Tweets", step = "middle", legend = FALSE) %>%
+    echarts4r::e_area(count, name = "Tweets", legend = FALSE) %>%
     echarts4r::e_x_axis(
       min = 0,
       max = 23,
