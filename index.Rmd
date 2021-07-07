@@ -174,13 +174,13 @@ valueBox(number_of_unique_tweets_today, icon = "fa-comment-alt", color = "rgba(3
 valueBox(number_of_tweeters_today, icon = "fa-user", color = "rgba(153, 84, 187, 0.7)")
 ```
 
-### #useR2021 Likes </br> <small> (Jun 14 - Today) </small>
+### #useR2021 Likes
 
 ```{r likes}
 valueBox(number_of_likes, icon = "fa-heart", color = "rgba(39, 128, 227, 0.7)")
 ```
 
-### #useR2021 Tweets </br> <small> (Jun 14 - Today) </small>
+### #useR2021 Tweets
 
 ```{r unique_tweets}
 valueBox(number_of_unique_tweets, icon = "fa-comments", color = "rgba(153, 84, 187, 0.7)")
@@ -194,6 +194,8 @@ Row {.tabset .tabset-fade}
 ```{r tweet_volume}
 mycolor <- c("#2780e3", "#003636", "#a9a9a9", "#91c8c8")
 this_month <- lubridate::floor_date(today(), "month")
+earliest_day <- min(by_day_metrics$time)
+
 by_day_metrics %>%
   e_charts(time) %>%
   e_area(tweets, name = "Number of Tweets", stack = "grp") %>%
@@ -245,7 +247,7 @@ by_day_metrics %>%
   ) %>%
   echarts4r::e_datazoom(type = "slider") %>%
   echarts4r::e_zoom(dataZoomIndex = 0,
-                    start = 70,
+                    start = 0,
                     end = 100) %>%
   echarts4r::e_zoom(
     dataZoomIndex = 0,
@@ -255,10 +257,20 @@ by_day_metrics %>%
   ) %>%
   echarts4r::e_zoom(
     dataZoomIndex = 0,
+    startValue = earliest_day,
+    endValue = today(),
+    btn = "allTimeBtn"
+  ) %>%
+  echarts4r::e_zoom(
+    dataZoomIndex = 0,
     startValue = this_month,
     endValue = today(),
     btn = "monthBtn"
   ) %>%
+  echarts4r::e_button(id = "allTimeBtn",
+                      position = "top",
+                      class = "btn btn-primary btn-sm",
+                      "All Time") %>% 
   echarts4r::e_button(id = "weekBtn",
                       position = "top",
                       class = "btn btn-primary btn-sm",
