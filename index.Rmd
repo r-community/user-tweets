@@ -500,22 +500,6 @@ top_tweets_html <- purrr::pmap_chr(list(top_tweets$screen_name, top_tweets$statu
 htmltools::HTML(str_glue("{top_tweets_html}"))
 ```
 
-
-Schedule {data-icon="ion-calendar"}
-==============
-
-Row {data-width=1000 data-height=1000}
--------------------------------------
-
-<iframe
-    src="https://teamup.com/ksq66gfv56x43jqsk5?showProfileAndInfo=0&showSidepanel=1&showAgendaHeader=1&showAgendaDetails=0&showYearViewHeader=1" 
-    frameborder="0"
-    style="overflow:hidden;height:100%;width:100%" 
-    height="100%" 
-    width="100%">
-</iframe>
-
-
 Data {data-icon="ion-stats-bars"}
 ==============
 
