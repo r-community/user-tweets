@@ -131,7 +131,7 @@ blockquote.twitter-tweet {
 }
 /* Styles for the tweet wall end */
 
-.img-fluid {
+.footer-sponsors > a > .img-fluid {
   width: 4em;
   height: 2em;
 }
