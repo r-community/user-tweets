@@ -16,9 +16,6 @@ output:
 
 ```{r load_proj, include=FALSE}
 devtools::load_all()
-```
-
-```{r load_packages, include=FALSE, cache=TRUE}
 library(flexdashboard)
 library(rtweet)
 library(vroom)
@@ -29,7 +26,9 @@ library(lubridate)
 library(echarts4r)
 library(reactable)
 library(DT)
+```
 
+```{r load_packages, include=FALSE, cache=TRUE}
 userconf_tweets <- readData("data/useR_tweets.csv.gz")
 ```
 
@@ -509,8 +508,11 @@ top_locations %>%
   e_axis_labels(y = "Number of users from location")
 ```
 
-Data {data-icon="ion-stats-bars"}
+Data {data-icon="ion-stats-bars" data-orientation=column}
 ==============
+
+Column {data-height=1000}
+----------------------------------------------------------
 
 ### Tweets {.datatable-container}
 
