@@ -130,3 +130,17 @@ blockquote.twitter-tweet {
   }
 }
 /* Styles for the tweet wall end */
+
+.img-fluid {
+  width: 4em;
+  height: 2em;
+}
+
+#cynkra-logo {
+  object-fit: cover;
+  object-position: center;
+}
+
+.page-footer {
+  margin-left: -10px;
+}

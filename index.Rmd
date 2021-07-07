@@ -10,6 +10,8 @@ output:
       bootswatch: cosmo
     self_contained: false
     css: styles/main.css
+    includes:
+      after_body: fragments/footer.html
 ---
 
 ```{r load_proj, include=FALSE}
