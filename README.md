@@ -3,7 +3,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-This is a self-updating dashboard that shows the latest tweets from the #useR2021 twitter hashtag. It updates both the data and the dashboard daily using GH Actions, which can also be triggered manually.
+This is a self-updating dashboard that shows the latest tweets from the #useR2021 twitter hashtag. It updates both the data and the dashboard hourly using GH Actions, which can also be triggered manually.
 
 [See it live here](https://r-community.github.io/user-tweets/)
 
@@ -13,4 +13,5 @@ This is a self-updating dashboard that shows the latest tweets from the #useR202
 - `data`: Contains the data used in the dashboard.
 - `scripts`: Scripts that run in the GH Actions CI.
 - `styles`: CSS styling for the dashboard.
+- `fragments`: HTML fragments included in the dashboard.
 - `index.Rmd`: Source code for the dashboard.
