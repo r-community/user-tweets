@@ -4,7 +4,6 @@ output:
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: scroll
-    source_code: embed
     theme:
       version: 4
       bootswatch: cosmo
