@@ -12,6 +12,8 @@ output:
     favicon: "https://user2021.r-project.org//favicon-32x32.png"
     includes:
       after_body: fragments/footer.html
+    navbar:
+      - {icon: "fa-external-link-alt", href: "https://r-community.org/usergroups/", title: "R Community Explorer", align: right}
 ---
 
 ```{r load_proj, include=FALSE}
