@@ -12,8 +12,6 @@ output:
     favicon: "https://user2021.r-project.org//favicon-32x32.png"
     includes:
       after_body: fragments/footer.html
-    navbar:
-      - {icon: "fa-external-link-alt", href: "https://r-community.org/usergroups/", title: "R Community Explorer", align: right}
 ---
 
 ```{r load_proj, include=FALSE}
@@ -156,6 +154,12 @@ by_day_metrics <- tweets_by_day %>%
   tidyr::replace_na(replace = list(likes = 0, retweets = 0))
 ```
 
+Sidebar {.sidebar}
+==================
+
+```{r, echo=FALSE, results='asis'}
+htmltools::includeHTML('./fragments/sidebar.html')
+```
 
 Home {data-icon="ion-home"}
 ====
