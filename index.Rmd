@@ -4,9 +4,6 @@ output:
   flexdashboard::flex_dashboard:
     orientation: rows
     vertical_layout: scroll
-    theme:
-      version: 4
-      bootswatch: cosmo
     self_contained: false
     css: styles/main.css
     favicon: "https://user2021.r-project.org//favicon-32x32.png"
